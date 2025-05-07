@@ -1,0 +1,42 @@
+import processing.serial.*;
+
+Serial myPort;
+float xAngle = 0;
+float yAngle = 0;
+float zAngle = 0;
+
+void setup() {
+  size(600, 600, P3D);
+  String portName = "COM14"; // Select Your correct port
+  myPort = new Serial(this, portName, 9600);
+  myPort.bufferUntil('\n');
+}
+
+void draw() {
+  background(255);
+  lights();
+  translate(width / 2, height / 2, 0);
+  rotateX(radians(xAngle));
+  rotateY(radians(yAngle));
+  rotateZ(radians(zAngle));
+  fill(0, 102, 204);
+  stroke(0);
+  box(200); // 3D cube
+}
+
+void serialEvent(Serial myPort) {
+  String data = myPort.readStringUntil('\n');
+  if (data != null) {
+    data = trim(data);
+    String[] angles = splitTokens(data, ": \t");
+    if (angles.length >= 6) {
+      try {
+        xAngle = float(angles[1]);
+        yAngle = float(angles[3]);
+        zAngle = float(angles[5]);
+      } catch (Exception e) {
+        println("Parsing error: " + e.getMessage());
+      }
+    }
+  }
+}
